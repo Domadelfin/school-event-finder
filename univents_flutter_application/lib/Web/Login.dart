@@ -115,13 +115,14 @@ class _LoginState extends State<Login> {
             color: Colors.white,
             margin: const EdgeInsets.all(100),
             child: Padding(
-              padding: const EdgeInsets.only(left: 60, top: 60),
+              padding: const EdgeInsets.only(left: 60, top: 0),
               child: Row( 
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      const SizedBox(height: 60),
                       const Text("Uni-Vents",
                           style: TextStyle(
                               color: Colors.blue,
@@ -131,10 +132,10 @@ class _LoginState extends State<Login> {
                       const Text("Ateneo de Davao Events",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 25)),
-                      const SizedBox(height: 5),
+                      const SizedBox(height: 30),
                       const Text("Welcome Back, Please login to your account",
                           style: TextStyle(color: Colors.grey, fontSize: 14)),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 40),
                       _inputBox("Email Address", emailController),
                       _inputBox("Password", passwordController,
                           obscureText: true),
@@ -200,7 +201,9 @@ class _LoginState extends State<Login> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 40),
+                      const SizedBox(height: 30),
+                      const Text("or"),
+                      const SizedBox(height: 30),
                       _googleButton(),
                     ],
                   ),
