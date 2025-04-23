@@ -4,9 +4,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'Dashboard.dart';
+import 'Dashboard.dart'; // your dashboard file
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Supabase.initialize(
+    url: 'https://bokvzsmpjkdvcxndjfop.supabase.co',
+    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJva3Z6c21wamtkdmN4bmRqZm9wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ1NTQ2ODksImV4cCI6MjA2MDEzMDY4OX0.ffciwyoTJshK42Llpv55rRVx6-_JlO_PNIWtyYbKVgg',
+  );
   runApp(const MyApp());
 }
 
@@ -33,10 +38,6 @@ class Login extends StatefulWidget {
 
 class _LoginState extends State<Login> {
   String? _userID;
-  final TextEditingController emailController =
-      TextEditingController(text: "aly@addu.edu.com");
-  final TextEditingController passwordController =
-      TextEditingController(text: "password123");
 
   @override
   void initState() {
@@ -49,10 +50,8 @@ class _LoginState extends State<Login> {
   }
 
   Future<void> _nativeGoogleSignIn() async {
-    const webClientId =
-        '451923571225-16d5gkkhbib2bvov02p7fgv40mi2jiff.apps.googleusercontent.com';
-    final GoogleSignIn googleSignIn =
-        GoogleSignIn(serverClientId: webClientId);
+    const webClientId = '451923571225-16d5gkkhbib2bvov02p7fgv40mi2jiff.apps.googleusercontent.com';
+    final GoogleSignIn googleSignIn = GoogleSignIn(serverClientId: webClientId);
 
     final googleUser = await googleSignIn.signIn();
     final googleAuth = await googleUser?.authentication;
@@ -61,19 +60,50 @@ class _LoginState extends State<Login> {
     final idToken = googleAuth?.idToken;
 
     if (accessToken != null && idToken != null) {
-      await supabase.auth.signInWithIdToken(
+      final res = await supabase.auth.signInWithIdToken(
         provider: OAuthProvider.google,
         idToken: idToken,
         accessToken: accessToken,
       );
-      _goToDashboard();
+
+      final email = res.user?.email;
+      if (email != null) {
+        await _checkUserExists(email);
+      }
     }
   }
 
   Future<void> _webGoogleSignIn() async {
-    await supabase.auth.signInWithOAuth(OAuthProvider.google, redirectTo: '/');
+    final res = await supabase.auth.signInWithOAuth(OAuthProvider.google);
+    final email = supabase.auth.currentUser?.email;
+
+    if (email != null) {
+      await _checkUserExists(email);
+    }
   }
 
+  Future<void> _checkUserExists(String email) async {
+    print('Checking email: $email');
+    final allUsers = await supabase.from('users').select('email');
+    print('All users: $allUsers');
+
+    final response = await supabase
+        .from('users')
+        .select()
+        .ilike('email', email)
+        .maybeSingle();
+
+    if (response != null) {
+      print('User found in users table.');
+      _goToDashboard();
+    } else {
+      print('User NOT found in users table.');
+      _showAlert("Account not found in our system.");
+      await supabase.auth.signOut();
+    }
+  }
+
+  
   void _goToDashboard() {
     Navigator.pushReplacement(
       context,
@@ -81,12 +111,29 @@ class _LoginState extends State<Login> {
     );
   }
 
+  void _showAlert(String message) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Access Denied'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          )
+        ],
+      ),
+    );
+  }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (supabase.auth.currentUser != null) {
-        _goToDashboard();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final email = supabase.auth.currentUser?.email;
+      if (email != null) {
+        await _checkUserExists(email);
       }
     });
   }
@@ -116,7 +163,7 @@ class _LoginState extends State<Login> {
             margin: const EdgeInsets.all(100),
             child: Padding(
               padding: const EdgeInsets.only(left: 60, top: 0),
-              child: Row( 
+              child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Column(
@@ -136,74 +183,7 @@ class _LoginState extends State<Login> {
                       const Text("Welcome Back, Please login to your account",
                           style: TextStyle(color: Colors.grey, fontSize: 14)),
                       const SizedBox(height: 40),
-                      _inputBox("Email Address", emailController),
-                      _inputBox("Password", passwordController,
-                          obscureText: true),
-                      const SizedBox(height: 5),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Checkbox(
-                            value: false,
-                            onChanged: (bool? newValue) {},
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(6)),
-                            side: const BorderSide(
-                                color: Color.fromARGB(255, 215, 214, 214),
-                                width: 1),
-                          ),
-                          const Text("Remember me",
-                              style:
-                                  TextStyle(color: Colors.grey, fontSize: 15)),
-                          const SizedBox(width: 145),
-                          const Text("Forgot Password?",
-                              style:
-                                  TextStyle(color: Colors.grey, fontSize: 15)),
-                        ],
-                      ),
                       const SizedBox(height: 50),
-                      Row(
-                        children: [
-                          ElevatedButton(
-                            onPressed: () {
-                              // Add login logic here
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blue,
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(5)),
-                              minimumSize: const Size(150, 60),
-                            ),
-                            child: const Text("Login",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16)),
-                          ),
-                          const SizedBox(width: 20),
-                          ElevatedButton(
-                            onPressed: () {
-                              // Add signup logic here
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              foregroundColor: Colors.blue,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(5),
-                                side: const BorderSide(color: Colors.blue),
-                              ),
-                              minimumSize: const Size(150, 60),
-                            ),
-                            child: const Text("Sign Up",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16)),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 30),
-                      const Text("or"),
-                      const SizedBox(height: 30),
                       _googleButton(),
                     ],
                   ),
@@ -228,43 +208,6 @@ class _LoginState extends State<Login> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _inputBox(String label, TextEditingController controller,
-      {bool obscureText = false}) {
-    return Container(
-      height: 60,
-      width: 400,
-      margin: const EdgeInsets.only(bottom: 10),
-      decoration: BoxDecoration(
-        border: Border.all(
-            width: 1.5, color: const Color.fromARGB(255, 194, 192, 192)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(label, style: const TextStyle(fontSize: 14)),
-            Expanded(
-              child: TextField(
-                controller: controller,
-                obscureText: obscureText,
-                style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.blue,
-                    fontWeight: FontWeight.bold),
-                decoration: const InputDecoration(
-                  border: InputBorder.none,
-                  isDense: true,
-                  contentPadding: EdgeInsets.zero,
-                ),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
