@@ -10,7 +10,8 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Supabase.initialize(
     url: 'https://bokvzsmpjkdvcxndjfop.supabase.co',
-    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJva3Z6c21wamtkdmN4bmRqZm9wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ1NTQ2ODksImV4cCI6MjA2MDEzMDY4OX0.ffciwyoTJshK42Llpv55rRVx6-_JlO_PNIWtyYbKVgg',
+    anonKey:
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJva3Z6c21wamtkdmN4bmRqZm9wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ1NTQ2ODksImV4cCI6MjA2MDEzMDY4OX0.ffciwyoTJshK42Llpv55rRVx6-_JlO_PNIWtyYbKVgg',
   );
   runApp(const MyApp());
 }
@@ -50,7 +51,8 @@ class _LoginState extends State<Login> {
   }
 
   Future<void> _nativeGoogleSignIn() async {
-    const webClientId = '451923571225-16d5gkkhbib2bvov02p7fgv40mi2jiff.apps.googleusercontent.com';
+    const webClientId =
+        '451923571225-16d5gkkhbib2bvov02p7fgv40mi2jiff.apps.googleusercontent.com';
     final GoogleSignIn googleSignIn = GoogleSignIn(serverClientId: webClientId);
 
     final googleUser = await googleSignIn.signIn();
@@ -103,7 +105,6 @@ class _LoginState extends State<Login> {
     }
   }
 
-  
   void _goToDashboard() {
     Navigator.pushReplacement(
       context,
@@ -138,7 +139,6 @@ class _LoginState extends State<Login> {
     });
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -172,7 +172,7 @@ class _LoginState extends State<Login> {
                       const SizedBox(height: 60),
                       const Text("Uni-Vents",
                           style: TextStyle(
-                              color: Colors.blue,
+                              color: Color.fromARGB(255 ,0,45,179),
                               fontWeight: FontWeight.bold,
                               fontSize: 20)),
                       const SizedBox(height: 5),
@@ -182,7 +182,152 @@ class _LoginState extends State<Login> {
                       const SizedBox(height: 30),
                       const Text("Welcome Back, Please login to your account",
                           style: TextStyle(color: Colors.grey, fontSize: 14)),
-                      const SizedBox(height: 40),
+                      const SizedBox(height: 30),    
+                      Text("Employee ID",
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Color.fromARGB(255 ,0,45,179),
+                            fontWeight: FontWeight.bold,
+                          )),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      SizedBox(
+                        width: 400,
+                        child: TextField(
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: Colors.black,
+                          ),
+                          decoration: InputDecoration(
+                            hintText: "admin@addu.edu.ph",
+                            hintStyle: TextStyle(color: Color.fromARGB(255, 194, 190, 190)),
+                            filled: true,
+                            fillColor: const Color.fromARGB(255, 232, 240, 254),
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(5),
+                                borderSide:
+                                    BorderSide(width: 1.5, color: Color.fromARGB(255 ,0,45,179))),
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                  color: Color.fromARGB(255, 194, 192, 192)),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.grey),
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 25,
+                      ),
+                      Text("Passcode",
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Color.fromARGB(255 ,0,45,179),
+                            fontWeight: FontWeight.bold,
+                          )),
+                      SizedBox(height: 5),
+                      SizedBox(
+                        width: 400,
+                        child: TextField(
+                          obscureText: true,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: Colors.black,
+                          ),
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: const Color.fromARGB(255, 232, 240, 254),
+                            hintText: "Enter your password",
+                            hintStyle: TextStyle(color: Color.fromARGB(255, 194, 190, 190)),
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(5),
+                                borderSide:
+                                    BorderSide(width: 1.5, color: Color.fromARGB(255 ,0,45,179))),
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                  color: Color.fromARGB(255, 194, 192, 192)),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.grey),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Checkbox(
+                            value: false,
+                            onChanged: (bool? newValue) {},
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(6)),
+                            side: BorderSide(
+                                color: const Color.fromARGB(255, 215, 214, 214),
+                                width: 1),
+                          ),
+                          Text(
+                            "Remember me",
+                            style: TextStyle(color: Colors.grey, fontSize: 15),
+                          ),
+                          SizedBox(
+                            width: 145,
+                          ),
+                          Text(
+                            "Forgot Password?",
+                            style: TextStyle(color: Colors.grey, fontSize: 15),
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 50,
+                      ),
+                      Row(
+                        children: [
+                          ElevatedButton(
+                            onPressed: () {},
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Color.fromARGB(255 ,0,45,179),
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(5)),
+                              minimumSize: const Size(150, 60),
+                            ),
+                            child: Text(
+                              "Login",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 16),
+                            ),
+                          ),
+                          SizedBox(
+                            width: 20,
+                          ),
+                          ElevatedButton(
+                            onPressed: () {},
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              foregroundColor: Color.fromARGB(255 ,0,45,179),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(5),
+                                  side: BorderSide(
+                                      color: Color.fromARGB(255 ,0,45,179))),
+                              minimumSize: const Size(150, 60),
+                            ),
+                            child: Text(
+                              "Sign Up",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 16),
+                            ),
+                          )
+                        ],
+                      ),
                       const SizedBox(height: 50),
                       _googleButton(),
                     ],
@@ -224,7 +369,7 @@ class _LoginState extends State<Login> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.blue),
+          border: Border.all(color: Color.fromARGB(255 ,0,45,179)),
           borderRadius: BorderRadius.circular(5),
           color: Colors.white,
         ),
