@@ -6,16 +6,6 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'Dashboard.dart'; // your dashboard file
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Supabase.initialize(
-    url: 'https://bokvzsmpjkdvcxndjfop.supabase.co',
-    anonKey:
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJva3Z6c21wamtkdmN4bmRqZm9wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ1NTQ2ODksImV4cCI6MjA2MDEzMDY4OX0.ffciwyoTJshK42Llpv55rRVx6-_JlO_PNIWtyYbKVgg',
-  );
-  runApp(const MyApp());
-}
-
 final SupabaseClient supabase = Supabase.instance.client;
 
 class MyApp extends StatelessWidget {
@@ -38,6 +28,9 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
   String? _userID;
 
   @override
@@ -87,7 +80,6 @@ class _LoginState extends State<Login> {
   Future<void> _checkUserExists(String email) async {
     print('Checking email: $email');
     final allUsers = await supabase.from('users').select('email');
-    print('All users: $allUsers');
 
     final response = await supabase
         .from('users')
@@ -172,7 +164,7 @@ class _LoginState extends State<Login> {
                       const SizedBox(height: 60),
                       const Text("Uni-Vents",
                           style: TextStyle(
-                              color: Color.fromARGB(255 ,0,45,179),
+                              color: Color.fromARGB(255, 0, 45, 179),
                               fontWeight: FontWeight.bold,
                               fontSize: 20)),
                       const SizedBox(height: 5),
@@ -182,11 +174,11 @@ class _LoginState extends State<Login> {
                       const SizedBox(height: 30),
                       const Text("Welcome Back, Please login to your account",
                           style: TextStyle(color: Colors.grey, fontSize: 14)),
-                      const SizedBox(height: 30),    
+                      const SizedBox(height: 30),
                       Text("Employee ID",
                           style: TextStyle(
                             fontSize: 16,
-                            color: Color.fromARGB(255 ,0,45,179),
+                            color: Color.fromARGB(255, 0, 45, 179),
                             fontWeight: FontWeight.bold,
                           )),
                       SizedBox(
@@ -195,6 +187,7 @@ class _LoginState extends State<Login> {
                       SizedBox(
                         width: 400,
                         child: TextField(
+                          controller: _emailController,
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
@@ -202,13 +195,15 @@ class _LoginState extends State<Login> {
                           ),
                           decoration: InputDecoration(
                             hintText: "admin@addu.edu.ph",
-                            hintStyle: TextStyle(color: Color.fromARGB(255, 194, 190, 190)),
+                            hintStyle: TextStyle(
+                                color: Color.fromARGB(255, 194, 190, 190)),
                             filled: true,
                             fillColor: const Color.fromARGB(255, 232, 240, 254),
                             border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(5),
-                                borderSide:
-                                    BorderSide(width: 1.5, color: Color.fromARGB(255 ,0,45,179))),
+                                borderSide: BorderSide(
+                                    width: 1.5,
+                                    color: Color.fromARGB(255, 0, 45, 179))),
                             enabledBorder: OutlineInputBorder(
                               borderSide: BorderSide(
                                   color: Color.fromARGB(255, 194, 192, 192)),
@@ -225,13 +220,14 @@ class _LoginState extends State<Login> {
                       Text("Passcode",
                           style: TextStyle(
                             fontSize: 16,
-                            color: Color.fromARGB(255 ,0,45,179),
+                            color: Color.fromARGB(255, 0, 45, 179),
                             fontWeight: FontWeight.bold,
                           )),
                       SizedBox(height: 5),
                       SizedBox(
                         width: 400,
                         child: TextField(
+                          controller: _passwordController,
                           obscureText: true,
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
@@ -242,11 +238,13 @@ class _LoginState extends State<Login> {
                             filled: true,
                             fillColor: const Color.fromARGB(255, 232, 240, 254),
                             hintText: "Enter your password",
-                            hintStyle: TextStyle(color: Color.fromARGB(255, 194, 190, 190)),
+                            hintStyle: TextStyle(
+                                color: Color.fromARGB(255, 194, 190, 190)),
                             border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(5),
-                                borderSide:
-                                    BorderSide(width: 1.5, color: Color.fromARGB(255 ,0,45,179))),
+                                borderSide: BorderSide(
+                                    width: 1.5,
+                                    color: Color.fromARGB(255, 0, 45, 179))),
                             enabledBorder: OutlineInputBorder(
                               borderSide: BorderSide(
                                   color: Color.fromARGB(255, 194, 192, 192)),
@@ -292,9 +290,19 @@ class _LoginState extends State<Login> {
                       Row(
                         children: [
                           ElevatedButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              final email = _emailController.text.trim();
+                              final password = _passwordController.text;
+
+                              if (email == 'admin@addu.edu.ph' &&
+                                  password == 'admin123') {
+                                _goToDashboard();
+                              } else {
+                                _showAlert("Invalid credentials");
+                              }
+                            },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Color.fromARGB(255 ,0,45,179),
+                              backgroundColor: Color.fromARGB(255, 0, 45, 179),
                               foregroundColor: Colors.white,
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(5)),
@@ -313,11 +321,11 @@ class _LoginState extends State<Login> {
                             onPressed: () {},
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.white,
-                              foregroundColor: Color.fromARGB(255 ,0,45,179),
+                              foregroundColor: Color.fromARGB(255, 0, 45, 179),
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(5),
                                   side: BorderSide(
-                                      color: Color.fromARGB(255 ,0,45,179))),
+                                      color: Color.fromARGB(255, 0, 45, 179))),
                               minimumSize: const Size(150, 60),
                             ),
                             child: Text(
@@ -369,7 +377,7 @@ class _LoginState extends State<Login> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          border: Border.all(color: Color.fromARGB(255 ,0,45,179)),
+          border: Border.all(color: Color.fromARGB(255, 0, 45, 179)),
           borderRadius: BorderRadius.circular(5),
           color: Colors.white,
         ),
