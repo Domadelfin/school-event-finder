@@ -1,3 +1,5 @@
+// add_event_form.dart
+
 // ignore_for_file: use_build_context_synchronously
 
 import 'dart:html' as html;
@@ -30,7 +32,10 @@ class _AddEventFormState extends State<AddEventForm> {
   Uint8List? _pickedImageBytes;
   String? _pickedImageName;
   String? _uploadedImageUrl;
-  String? _selectedOrgId; // Store the selected organization ID
+  String? _selectedOrgId;
+
+  bool _imageError = false;
+  bool _dateError = false;
 
   final List<String> _statusOptions = ['Upcoming', 'Ongoing', 'Done', 'Postponed', 'Cancelled'];
 
@@ -63,7 +68,7 @@ class _AddEventFormState extends State<AddEventForm> {
       final filePath = '$uuid.$fileExt';
 
       final response = await supabase.storage
-          .from('event-banner') // <- your bucket
+          .from('event-banner')
           .uploadBinary(
             filePath,
             _pickedImageBytes!,
@@ -71,9 +76,7 @@ class _AddEventFormState extends State<AddEventForm> {
           );
 
       if (response.isNotEmpty) {
-        final publicURL = supabase.storage
-            .from('event-banner')
-            .getPublicUrl(filePath);
+        final publicURL = supabase.storage.from('event-banner').getPublicUrl(filePath);
         setState(() {
           _uploadedImageUrl = publicURL;
         });
@@ -84,53 +87,36 @@ class _AddEventFormState extends State<AddEventForm> {
   }
 
   Future<DateTime?> showDateTimePicker() async {
-      final date = await showDatePicker(
-        context: context,
-        initialDate: DateTime.now(),
-        firstDate: DateTime(2020),
-        lastDate: DateTime(2100),
-      );
+    final date = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2100),
+    );
 
-      if (date == null) return null;
+    if (date == null) return null;
 
-      final time = await showTimePicker(
-        context: context,
-        initialTime: TimeOfDay.now(),
-      );
+    final time = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
 
-      if (time == null) return null;
+    if (time == null) return null;
 
-      return DateTime(date.year, date.month, date.day, time.hour, time.minute);
-    }
+    return DateTime(date.year, date.month, date.day, time.hour, time.minute);
+  }
 
   Future<void> _submitForm() async {
-    if (!_formKey.currentState!.validate()) {
-      return;
-    }
+    setState(() {
+      _imageError = _pickedImageBytes == null;
+      _dateError = _startDate == null || _endDate == null || (_startDate != null && _endDate != null && _startDate!.isAfter(_endDate!));
+    });
 
-    if (_pickedImageBytes == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select an event banner.')),
-      );
-      return;
-    }
-
-    if (_startDate == null || _endDate == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select both start and end dates.')),
-      );
-      return;
-    }
-
-    if (_startDate!.isAfter(_endDate!)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Start date must be before end date.')),
-      );
+    if (!_formKey.currentState!.validate() || _imageError || _dateError) {
       return;
     }
 
     await _uploadImage();
-
     if (_uploadedImageUrl == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Failed to upload image.')),
@@ -148,13 +134,12 @@ class _AddEventFormState extends State<AddEventForm> {
       'datetimeend': _endDate?.toIso8601String(),
       'eventbanner': _uploadedImageUrl,
       'orguid': _selectedOrgId,
-      'status': _eventStatus,
+      'status': _eventStatus ?? 'Upcoming',
     };
 
     await supabase.from('events').insert(eventData);
-    Navigator.pop(context);
+    Navigator.pop(context, true);
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -176,7 +161,6 @@ class _AddEventFormState extends State<AddEventForm> {
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
-              // Event Banner Selection
               GestureDetector(
                 onTap: _pickImage,
                 child: _pickedImageBytes != null
@@ -198,8 +182,15 @@ class _AddEventFormState extends State<AddEventForm> {
                         child: const Center(child: Text('Tap to select event banner')),
                       ),
               ),
+              if (_imageError)
+                const Padding(
+                  padding: EdgeInsets.only(top: 8),
+                  child: Text(
+                    'Event banner is required.',
+                    style: TextStyle(color: Colors.red, fontSize: 12),
+                  ),
+                ),
               const SizedBox(height: 16),
-              // Text Fields for Event Details
               TextFormField(
                 controller: _titleController,
                 decoration: const InputDecoration(labelText: 'Title'),
@@ -223,7 +214,6 @@ class _AddEventFormState extends State<AddEventForm> {
                 decoration: const InputDecoration(labelText: 'Tags'),
               ),
               const SizedBox(height: 16),
-              // Dropdown for selecting Organization
               DropdownButtonFormField<String>(
                 value: _selectedOrgId,
                 hint: const Text('Select Organization'),
@@ -250,16 +240,15 @@ class _AddEventFormState extends State<AddEventForm> {
                     child: Text(status),
                   );
                 }).toList(),
-                onChanged: (String? newValue) {
+                onChanged: (value) {
                   setState(() {
-                    _eventStatus = newValue;
+                    _eventStatus = value;
                   });
                 },
                 decoration: const InputDecoration(labelText: 'Status'),
                 validator: (value) => value == null ? 'Please select a status' : null,
               ),
               const SizedBox(height: 16),
-              // Date Pickers for Event Dates
               Row(
                 children: [
                   Expanded(
@@ -287,6 +276,14 @@ class _AddEventFormState extends State<AddEventForm> {
                   ),
                 ],
               ),
+              if (_dateError)
+                const Padding(
+                  padding: EdgeInsets.only(top: 8),
+                  child: Text(
+                    'Start and End dates are required. Start date must be before End date.',
+                    style: TextStyle(color: Colors.red, fontSize: 12),
+                  ),
+                ),
               const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: _submitForm,
