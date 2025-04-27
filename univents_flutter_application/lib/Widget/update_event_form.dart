@@ -35,6 +35,8 @@ class _UpdateEventFormState extends State<UpdateEventForm> {
   DateTime? _endDate;
   String? _eventStatus;
 
+  bool _dateError = false;
+
   final List<String> _statusOptions = ['Upcoming', 'Ongoing', 'Done', 'Postponed', 'Cancelled'];
 
   @override
@@ -139,6 +141,14 @@ class _UpdateEventFormState extends State<UpdateEventForm> {
 
       if (_uploadedImageUrl == null) {
         throw Exception('Image upload failed. No image URL available.');
+      }
+
+      setState(() {
+        _dateError = _startDate == null || _endDate == null || (_startDate != null && _endDate != null && _startDate!.isAfter(_endDate!));
+      });
+
+      if (_dateError){
+        return;
       }
 
       final updates = {
