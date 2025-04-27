@@ -1,5 +1,3 @@
-// add_event_form.dart
-
 // ignore_for_file: use_build_context_synchronously
 
 import 'dart:html' as html;
@@ -214,7 +212,7 @@ class _AddEventFormState extends State<AddEventForm> {
                 decoration: const InputDecoration(labelText: 'Tags'),
               ),
               const SizedBox(height: 16),
-              DropdownButtonFormField<String>(
+              DropdownButtonFormField<String>( 
                 value: _selectedOrgId,
                 hint: const Text('Select Organization'),
                 items: widget.organizations.entries.map((org) {

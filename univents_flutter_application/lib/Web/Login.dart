@@ -42,7 +42,7 @@ class _LoginState extends State<Login> {
     super.initState();
     supabase.auth.onAuthStateChange.listen((data) {
       setState(() {
-        _userID = data.session?.user?.id;
+        _userID = data.session?.user.id;
       });
     });
   }
