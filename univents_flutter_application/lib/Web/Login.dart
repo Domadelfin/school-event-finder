@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'Dashboard.dart'; // your dashboard file
+import 'package:univents_flutter_application/secret.dart';
 
 final SupabaseClient supabase = Supabase.instance.client;
 
@@ -33,6 +34,9 @@ class _LoginState extends State<Login> {
 
   String? _userID;
 
+  final FocusNode _emailFocusNode = FocusNode();
+  final FocusNode _passwordFocusNode = FocusNode();
+
   @override
   void initState() {
     super.initState();
@@ -44,8 +48,7 @@ class _LoginState extends State<Login> {
   }
 
   Future<void> _nativeGoogleSignIn() async {
-    const webClientId =
-        '451923571225-16d5gkkhbib2bvov02p7fgv40mi2jiff.apps.googleusercontent.com';
+    const webClientId = secret.webClientId;
     final GoogleSignIn googleSignIn = GoogleSignIn(serverClientId: webClientId);
 
     final googleUser = await googleSignIn.signIn();
@@ -152,7 +155,10 @@ class _LoginState extends State<Login> {
           Card(
             elevation: 20,
             color: Colors.white,
-            margin: const EdgeInsets.all(100),
+            margin: EdgeInsets.symmetric(
+              horizontal: MediaQuery.of(context).size.width * 0.05,
+              vertical: MediaQuery.of(context).size.height * 0.05,
+            ),
             child: Padding(
               padding: const EdgeInsets.only(left: 60, top: 0),
               child: Row(
@@ -175,7 +181,7 @@ class _LoginState extends State<Login> {
                       const Text("Welcome Back, Please login to your account",
                           style: TextStyle(color: Colors.grey, fontSize: 14)),
                       const SizedBox(height: 30),
-                      Text("Employee ID",
+                      const Text("Employee ID",
                           style: TextStyle(
                             fontSize: 16,
                             color: Color.fromARGB(255, 0, 45, 179),
@@ -188,6 +194,7 @@ class _LoginState extends State<Login> {
                         width: 400,
                         child: TextField(
                           controller: _emailController,
+                          focusNode: _emailFocusNode,
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
@@ -212,6 +219,11 @@ class _LoginState extends State<Login> {
                               borderSide: BorderSide(color: Colors.grey),
                             ),
                           ),
+                          textInputAction: TextInputAction.next, // Next field on "Enter"
+                          onSubmitted: (_) {
+                            // Move focus to the password field when "Enter" is pressed
+                            FocusScope.of(context).requestFocus(_passwordFocusNode);
+                          },
                         ),
                       ),
                       SizedBox(
@@ -229,6 +241,7 @@ class _LoginState extends State<Login> {
                         child: TextField(
                           controller: _passwordController,
                           obscureText: true,
+                          focusNode: _passwordFocusNode,
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
@@ -253,40 +266,20 @@ class _LoginState extends State<Login> {
                               borderSide: BorderSide(color: Colors.grey),
                             ),
                           ),
+                          textInputAction: TextInputAction.done, // Trigger form submission on "Enter"
+                          onSubmitted: (_) {
+                            final email = _emailController.text.trim();
+                            final password = _passwordController.text;
+
+                            if (email == 'admin@addu.edu.ph' && password == 'admin123') {
+                              _goToDashboard();
+                            } else {
+                              _showAlert("Invalid credentials");
+                            }
+                          },
                         ),
                       ),
                       const SizedBox(height: 20),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Checkbox(
-                            value: false,
-                            onChanged: (bool? newValue) {},
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(6)),
-                            side: BorderSide(
-                                color: const Color.fromARGB(255, 215, 214, 214),
-                                width: 1),
-                          ),
-                          Text(
-                            "Remember me",
-                            style: TextStyle(color: Colors.grey, fontSize: 15),
-                          ),
-                          SizedBox(
-                            width: 145,
-                          ),
-                          Text(
-                            "Forgot Password?",
-                            style: TextStyle(color: Colors.grey, fontSize: 15),
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                        height: 50,
-                      ),
                       Row(
                         children: [
                           ElevatedButton(
@@ -294,8 +287,7 @@ class _LoginState extends State<Login> {
                               final email = _emailController.text.trim();
                               final password = _passwordController.text;
 
-                              if (email == 'admin@addu.edu.ph' &&
-                                  password == 'admin123') {
+                              if (email == 'admin@addu.edu.ph' && password == 'admin123') {
                                 _goToDashboard();
                               } else {
                                 _showAlert("Invalid credentials");
@@ -314,33 +306,13 @@ class _LoginState extends State<Login> {
                                   fontWeight: FontWeight.bold, fontSize: 16),
                             ),
                           ),
-                          SizedBox(
-                            width: 20,
-                          ),
-                          ElevatedButton(
-                            onPressed: () {},
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              foregroundColor: Color.fromARGB(255, 0, 45, 179),
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(5),
-                                  side: BorderSide(
-                                      color: Color.fromARGB(255, 0, 45, 179))),
-                              minimumSize: const Size(150, 60),
-                            ),
-                            child: Text(
-                              "Sign Up",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 16),
-                            ),
-                          )
                         ],
                       ),
-                      const SizedBox(height: 50),
+                      const SizedBox(height: 15),
                       _googleButton(),
                     ],
                   ),
-                  const SizedBox(width: 50),
+                  const SizedBox(width: 15),
                   Expanded(
                     child: Align(
                       alignment: Alignment.topCenter,
