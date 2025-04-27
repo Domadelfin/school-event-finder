@@ -96,9 +96,60 @@ class _EventsState extends State<Events> {
     fetchEventsAndOrgs();
   }
 
-  void _deleteEvent(String eventId) async {
-    //delete logic
-  }
+  void _deleteEvent(Map<String, dynamic> event) async {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // User can't dismiss it by tapping outside
+      builder: (context) {
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      },
+    );
+
+    try {
+      // Delete event banner if it exists
+      final eventBanner = event['eventbanner'];
+      if (eventBanner != null && eventBanner.isNotEmpty) {
+        final parts = eventBanner.split('/');
+        final imageurl = parts.isNotEmpty ? parts.last : null;
+
+        if (imageurl != null) {
+          await supabase.storage.from('event-banner').remove([imageurl]);
+        }
+      }
+
+      // Delete event from the database
+      await supabase.from('events').delete().eq('uid', event['uid']);
+
+      debugPrint('Deleted event: ${event['uid']}');
+      await fetchEventsAndOrgs();
+
+      Navigator.of(context).pop();
+
+      // Show success snackbar
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Event deleted successfully!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } catch (e) {
+      debugPrint('Error deleting event: $e');
+
+      // Close the loading spinner
+      Navigator.of(context).pop();
+
+      // Show error snackbar
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to delete event. Please try again.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -242,11 +293,67 @@ class _EventsState extends State<Events> {
                           right: 4,
                           top: 4,
                           child: PopupMenuButton<String>(
-                            onSelected: (value) {
+                            onSelected: (value) async {
                               if (value == 'edit') {
                                 _openUpdateEventForm(event);
                               } else if (value == 'delete') {
-                                _deleteEvent(event['id'].toString());
+                                bool? confirmDelete = await showModalBottomSheet<bool>(
+                                  context: context,
+                                  backgroundColor: Colors.white,
+                                  shape: const RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                                  ),
+                                  builder: (context) {
+                                    return Padding(
+                                      padding: const EdgeInsets.all(24),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        children: [
+                                          const Icon(Icons.warning_amber_rounded, size: 48, color: Colors.red),
+                                          const SizedBox(height: 16),
+                                          const Text(
+                                            'Delete Event?',
+                                            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                                          ),
+                                          const SizedBox(height: 12),
+                                          const Text(
+                                            'Are you sure you want to delete this event? This action cannot be undone.',
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(fontSize: 16, color: Colors.black54),
+                                          ),
+                                          const SizedBox(height: 24),
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                            children: [
+                                              ElevatedButton(
+                                                onPressed: () => Navigator.pop(context, false),
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor: Colors.grey.shade300,
+                                                  foregroundColor: Colors.black,
+                                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                                ),
+                                                child: const Text('Cancel'),
+                                              ),
+                                              ElevatedButton(
+                                                onPressed: () => Navigator.pop(context, true),
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor: Colors.red,
+                                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                                ),
+                                                child: const Text('Delete'),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                );
+
+                                if (confirmDelete == true) {
+                                  _deleteEvent(event);
+                                }
                               }
                             },
                             itemBuilder: (context) => [
