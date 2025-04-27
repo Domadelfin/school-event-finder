@@ -104,41 +104,57 @@ class _AddEventFormState extends State<AddEventForm> {
     }
 
   Future<void> _submitForm() async {
-    if (_formKey.currentState!.validate() && _pickedImageBytes != null) {
-      await _uploadImage();
-
-      if (_uploadedImageUrl == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to upload image.')),
-        );
-        return;
-      }
-
-      final eventData = {
-        'title': _titleController.text,
-        'description': _descriptionController.text,
-        'location': _locationController.text,
-        'type': _typeController.text,
-        'tags': _tagsController.text,
-        'datetimestart': _startDate?.toIso8601String(),
-        'datetimeend': _endDate?.toIso8601String(),
-        'eventbanner': _uploadedImageUrl,
-        'orguid': _selectedOrgId,
-        'status': _eventStatus ?? 'Upcoming',
-      };
-
-      try {
-        final response = await supabase.from('events').insert(eventData);
-        if (response.error == null) {
-          Navigator.pop(context);
-        } else {
-          throw Exception('Failed to add event');
-        }
-      } catch (e) {
-        debugPrint('Error submitting event: $e');
-      }
+    if (!_formKey.currentState!.validate()) {
+      return;
     }
+
+    if (_pickedImageBytes == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select an event banner.')),
+      );
+      return;
+    }
+
+    if (_startDate == null || _endDate == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select both start and end dates.')),
+      );
+      return;
+    }
+
+    if (_startDate!.isAfter(_endDate!)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Start date must be before end date.')),
+      );
+      return;
+    }
+
+    await _uploadImage();
+
+    if (_uploadedImageUrl == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to upload image.')),
+      );
+      return;
+    }
+
+    final eventData = {
+      'title': _titleController.text,
+      'description': _descriptionController.text,
+      'location': _locationController.text,
+      'type': _typeController.text,
+      'tags': _tagsController.text,
+      'datetimestart': _startDate?.toIso8601String(),
+      'datetimeend': _endDate?.toIso8601String(),
+      'eventbanner': _uploadedImageUrl,
+      'orguid': _selectedOrgId,
+      'status': _eventStatus,
+    };
+
+    await supabase.from('events').insert(eventData);
+    Navigator.pop(context);
   }
+
 
   @override
   Widget build(BuildContext context) {

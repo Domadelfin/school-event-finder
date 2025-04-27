@@ -58,7 +58,7 @@ class _EventsState extends State<Events> {
   }
 
   void _openAddEventForm() async {
-    await showDialog(
+    final result = await showDialog(
       context: context,
       builder: (context) {
         return Dialog(
@@ -68,14 +68,13 @@ class _EventsState extends State<Events> {
           child: Container(
             width: 500,
             padding: const EdgeInsets.all(24),
-            child: AddEventForm(organizations: organizations), // Pass organizations here
+            child: AddEventForm(organizations: organizations),
           ),
         );
       },
     );
 
-    // Refresh events list after closing the form
-    fetchEventsAndOrgs();
+      fetchEventsAndOrgs();
   }
 
   @override
