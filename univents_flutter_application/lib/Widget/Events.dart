@@ -97,18 +97,7 @@ class _EventsState extends State<Events> {
   }
 
   void _deleteEvent(String eventId) async {
-    try {
-      await supabase.from('events').delete().eq('id', eventId);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Event deleted')),
-      );
-      fetchEventsAndOrgs();
-    } catch (e) {
-      debugPrint('Error deleting event: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to delete event')),
-      );
-    }
+    //delete logic
   }
 
   @override
