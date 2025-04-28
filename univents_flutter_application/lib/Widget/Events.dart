@@ -99,7 +99,7 @@ class _EventsState extends State<Events> {
   void _deleteEvent(Map<String, dynamic> event) async {
     showDialog(
       context: context,
-      barrierDismissible: false, // User can't dismiss it by tapping outside
+      barrierDismissible: false,
       builder: (context) {
         return const Center(
           child: CircularProgressIndicator(),
@@ -108,7 +108,6 @@ class _EventsState extends State<Events> {
     );
 
     try {
-      // Delete event banner if it exists
       final eventBanner = event['eventbanner'];
       if (eventBanner != null && eventBanner.isNotEmpty) {
         final parts = eventBanner.split('/');
@@ -119,7 +118,6 @@ class _EventsState extends State<Events> {
         }
       }
 
-      // Delete event from the database
       await supabase.from('events').delete().eq('uid', event['uid']);
 
       debugPrint('Deleted event: ${event['uid']}');
@@ -127,7 +125,6 @@ class _EventsState extends State<Events> {
 
       Navigator.of(context).pop();
 
-      // Show success snackbar
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Event deleted successfully!'),
@@ -161,8 +158,8 @@ class _EventsState extends State<Events> {
               padding: const EdgeInsets.all(12),
               child: GridView.builder(
                 itemCount: events.length,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 5,
+                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                  maxCrossAxisExtent: 250,
                   crossAxisSpacing: 5,
                   mainAxisSpacing: 5,
                   childAspectRatio: 0.7,
@@ -354,11 +351,14 @@ class _EventsState extends State<Events> {
                                 if (confirmDelete == true) {
                                   _deleteEvent(event);
                                 }
+                              } else if (value == 'attendees') {
+                                //Handle view attendees action here
                               }
                             },
                             itemBuilder: (context) => [
                               const PopupMenuItem(value: 'edit', child: Text('Edit')),
                               const PopupMenuItem(value: 'delete', child: Text('Delete')),
+                              const PopupMenuItem(value: 'attendees', child: Text('View Attendees')),
                             ],
                           ),
                         ),

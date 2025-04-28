@@ -41,8 +41,8 @@ class _OrganizationsState extends State<Organizations> {
               padding: const EdgeInsets.all(12),
               child: GridView.builder(
                 itemCount: organizations.length,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 4, 
+                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                  maxCrossAxisExtent: 400, 
                   crossAxisSpacing: 8,
                   mainAxisSpacing: 8,
                   childAspectRatio: 0.85,
