@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'Dashboard.dart'; // your dashboard file
-import 'package:univents_flutter_application/secret.dart';
+import 'package:univents_flutter_application/env.dart';
 
 final SupabaseClient supabase = Supabase.instance.client;
 
@@ -48,7 +48,7 @@ class _LoginState extends State<Login> {
   }
 
   Future<void> _nativeGoogleSignIn() async {
-    const webClientId = secret.webClientId;
+    const webClientId = env.webClientId;
     final GoogleSignIn googleSignIn = GoogleSignIn(serverClientId: webClientId);
 
     final googleUser = await googleSignIn.signIn();

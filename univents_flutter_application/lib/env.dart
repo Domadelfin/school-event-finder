@@ -1,0 +1,5 @@
+class env {
+ static const String webClientId='451923571225-16d5gkkhbib2bvov02p7fgv40mi2jiff.apps.googleusercontent.com';
+ static const String SUPABASE_URL='https://bokvzsmpjkdvcxndjfop.supabase.co';
+ static const String SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJva3Z6c21wamtkdmN4bmRqZm9wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ1NTQ2ODksImV4cCI6MjA2MDEzMDY4OX0.ffciwyoTJshK42Llpv55rRVx6-_JlO_PNIWtyYbKVgg';
+}

@@ -3,14 +3,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'Web/Login.dart';
-import 'package:univents_flutter_application/secret.dart';
+import 'package:univents_flutter_application/env.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Supabase.initialize(
-    url: secret.SUPABASE_URL,
-    anonKey: secret.SUPABASE_ANON_KEY
+    url: env.SUPABASE_URL,
+    anonKey: env.SUPABASE_ANON_KEY
     );
 
   final supabase = Supabase.instance.client;
