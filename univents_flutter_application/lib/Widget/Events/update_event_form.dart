@@ -1,13 +1,10 @@
-// update_event_form.dart
-// ignore_for_file: use_build_context_synchronously
-
 import 'dart:html' as html;
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
+import 'package:univents_flutter_application/Web/supabase_instance.dart';
 
-final SupabaseClient supabase = Supabase.instance.client;
 
 class UpdateEventForm extends StatefulWidget {
   final Map<String, dynamic> eventData;

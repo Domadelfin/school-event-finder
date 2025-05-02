@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'events_controller.dart';
+import 'View_Attendees.dart';
 
-final SupabaseClient supabase = Supabase.instance.client;
 
 class Events extends StatefulWidget {
   const Events({super.key});
@@ -20,7 +19,7 @@ class _EventsState extends State<Events> {
   @override
   void initState() {
     super.initState();
-    _controller = EventsController(context: context, supabase: supabase);
+    _controller = EventsController(context: context);
     _loadData();
   }
 
@@ -70,10 +69,6 @@ class _EventsState extends State<Events> {
                   final org = organizations[event['orguid']];
 
                   return GestureDetector(
-                    onTap: () async {
-                      await _controller.openUpdateEventForm(event, organizations);
-                      _loadData();
-                    },
                     child: Card(
                       elevation: 4,
                       shape: RoundedRectangleBorder(
@@ -204,7 +199,12 @@ class _EventsState extends State<Events> {
                                     _loadData(); // Refresh the events list after deletion
                                   }
                                 } else if (value == 'attendees') {
-                                  debugPrint('View attendees for event: ${event['title']}');
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => Attendees(event: event),
+                                    ),
+                                  );
                                 }
                               },
                               itemBuilder: (context) => [

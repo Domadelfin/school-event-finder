@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:univents_flutter_application/Widget/Organizations.dart';
-import 'package:univents_flutter_application/Widget/Events.dart';
+import 'package:univents_flutter_application/Widget/Organizations/Organizations.dart';
+import 'package:univents_flutter_application/Widget/Events/Events.dart';
 import 'Login.dart';
 // import 'dart:html' as html;
 

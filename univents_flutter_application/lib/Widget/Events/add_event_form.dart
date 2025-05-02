@@ -5,8 +5,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
-
-final SupabaseClient supabase = Supabase.instance.client;
+import 'package:univents_flutter_application/Web/supabase_instance.dart';
 
 class AddEventForm extends StatefulWidget {
   final Map<String, dynamic> organizations;
